@@ -54,7 +54,8 @@ npm install
 創建 `.env` 文件並設置以下變量：
 
 ```bash
-VITE_API_URL=https://api.example.com
+VITE_APP_BASE_URL=https://localhost:3000
+VITE_APP_ClientId=`YOUR_DISCORD_CLIENT_ID`
 ```
 
 ---
@@ -91,36 +92,43 @@ npm run serve
 
 頁面組件負責渲染不同的路由。例如：
 
-- `Dashboard.jsx`：儀表板頁面。
-- `Settings.jsx`：設置頁面。
+- `DashboardPage.vue`：儀表板頁面。
+- `SettingsPage.vue`：設置頁面。
 
 ### 2. Services（服務層）
 
 封裝 API 請求邏輯，便於重用。例如：
 
-- `api.js`：處理與後端的數據交互。
+- `apiService.js`：處理與後端的數據交互。
 
 ### 3. Router（路由）
 
 定義應用程序的路由配置。例如：
 
 ```javascript
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
-import Settings from './pages/Settings';
+import { createRouter, createWebHistory } from 'vue-router';
+import Home from '../components/HomePage.vue';
+import Dashboard from '../components/DashboardPage.vue';
 
-function AppRouter() {
-    return (
-        <Router>
-            <Switch>
-                <Route path="/dashboard" component={Dashboard} />
-                <Route path="/settings" component={Settings} />
-            </Switch>
-        </Router>
-    );
-}
+const routes = [
+  {
+    path: '/',
+    name: 'home',
+    component: Home,
+  },
+  {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: Dashboard,
+  },
+];
 
-export default AppRouter;
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+});
+
+export default router;
 ```
 
 ---
