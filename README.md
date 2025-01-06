@@ -58,6 +58,10 @@ VITE_APP_BASE_URL=https://localhost:3000
 VITE_APP_ClientId=`YOUR_DISCORD_CLIENT_ID`
 ```
 
+### 4. 將SSL檔案並加入根目錄
+
+將SSL檔案 `server.crt` `server.key` 放入根目錄
+
 ---
 
 ## 如何運行應用程序
