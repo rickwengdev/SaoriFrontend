@@ -84,7 +84,7 @@ export default {
 
         if (serverinfo && serverinfo.data && serverinfo.success) {
           // 如果伺服器存在，跳轉到 guildmember 頁面
-          this.$router.push(`/${ServerId}/guildmenber`);
+          this.$router.push(`/${ServerId}/guildmember`);
         } else {
           // 如果返回數據無效，顯示錯誤消息
           this.error = serverinfo.data.message || 'Failed to load server info';
