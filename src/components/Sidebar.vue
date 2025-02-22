@@ -27,7 +27,7 @@ export default {
   data() {
     return {
       menuOptions: [
-        { name: 'guildmenber', label: 'Welcome Messages' },
+        { name: 'guildmember', label: 'Welcome Messages' },
         { name: 'reactionrole', label: 'Reaction Roles' },
         { name: 'dynamicvoicechannel', label: 'Dynamic Voice Channels' },
         { name: 'trackingmembersnumber', label: 'Tracking Members Number' },
