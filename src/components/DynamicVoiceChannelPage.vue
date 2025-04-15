@@ -1,8 +1,9 @@
 <template>
     <div class="container">
         <NavigationBar />
+        <button @click="toggleSidebar" class="sidebar-toggle" v-if="isMobile">☰</button>
         <div class="config-container">
-            <Sidebar @option-selected="" />
+            <Sidebar @option-selected="" :class="{ 'hidden': isMobile && isSidebarHidden }" />
             <main class="main-content">
                 <section v-if="currentSection === 'welcome'" class="config-section">
                     <h2>Dynamic voice channel Settings</h2>
@@ -42,34 +43,42 @@ export default {
                 dynamicVoiceChannel: null,
             },
             loading: true,
+            isSidebarHidden: false,
+            isMobile: window.innerWidth <= 768,
         };
     },
-    async created() {
-        await this.fetchData();
+    created() {
+        window.addEventListener('resize', this.checkMobile);
+        this.fetchData();
+    },
+    beforeUnmount() {
+        window.removeEventListener('resize', this.checkMobile);
     },
     methods: {
+        checkMobile() {
+            this.isMobile = window.innerWidth <= 768;
+        },
+        toggleSidebar() {
+            if (this.isMobile) {
+                this.isSidebarHidden = !this.isSidebarHidden;
+            }
+        },
         async fetchData() {
             const serverId = this.$route.params.serverId;
             try {
                 const channelsResponse = await apiService.get(`/api/${serverId}/channels`);
                 const channels = channelsResponse?.channels || [];
-
-                // 過濾文字頻道
                 this.voiceChannels = channels
                     .filter(channel => channel.type === 2)
                     .map(channel => ({
                         id: channel.id,
                         name: channel.name,
                     }));
-
                 const previewResponse = await apiService.get(`/api/${serverId}/dynamic-voice-channels`);
                 const config = previewResponse.config || {};
-
-                // 設置預覽數據
                 this.preview = {
                     dynamicVoiceChannel: this.getChannelName(config.base_channel_id),
                 };
-
                 this.dynamicVoiceChannel = config.base_channel_id || null;
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -108,6 +117,20 @@ export default {
     color: #ffffff;
 }
 
+.sidebar-toggle {
+    background: #2e3136;
+    color: #ffffff;
+    border: none;
+    padding: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    position: fixed;
+    top: 15px;
+    right: 70px;
+    z-index: 20;
+    border-radius: 5px;
+}
+
 .config-container {
     display: flex;
     flex: 1;
@@ -117,6 +140,13 @@ export default {
     width: 250px;
     background-color: #2e3136;
     padding: 20px;
+    transition: transform 0.3s ease;
+}
+
+.sidebar.hidden {
+    transform: translateX(-100%);
+    visibility: hidden;
+    position: absolute;
 }
 
 .main-content {
@@ -150,6 +180,7 @@ export default {
     border-radius: 5px;
     padding: 10px 20px;
     cursor: pointer;
+    width: 100%;
 }
 
 .save-button:hover {
@@ -165,5 +196,16 @@ export default {
 h2 {
     margin-bottom: 20px;
     color: #ffffff;
+}
+
+@media (min-width: 769px) {
+    .sidebar-toggle {
+        display: none;
+    }
+    .sidebar {
+        transform: none !important;
+        visibility: visible !important;
+        position: relative !important;
+    }
 }
 </style>

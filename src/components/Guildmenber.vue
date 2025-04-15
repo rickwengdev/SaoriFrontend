@@ -1,8 +1,9 @@
 <template>
     <div class="container">
         <NavigationBar />
+        <button @click="toggleSidebar" class="sidebar-toggle" v-if="isMobile">☰</button>
         <div class="config-container">
-            <Sidebar @option-selected="" />
+            <Sidebar @option-selected="" :class="{ 'hidden': isMobile && isSidebarHidden }" />
             <main class="main-content">
                 <section v-if="currentSection === 'welcome'" class="config-section">
                     <h2>Welcome Message Settings</h2>
@@ -52,35 +53,41 @@ export default {
                 leaveChannel: null,
             },
             loading: true,
+            isSidebarHidden: true,
+            isMobile: window.innerWidth <= 768,
         };
     },
-    async created() {
-        await this.fetchData();
+    created() {
+        window.addEventListener('resize', this.checkMobile);
+        this.fetchData();
+    },
+    beforeUnmount() {
+        window.removeEventListener('resize', this.checkMobile);
     },
     methods: {
+        checkMobile() {
+            this.isMobile = window.innerWidth <= 768;
+        },
+        toggleSidebar() {
+            if (this.isMobile) {
+                this.isSidebarHidden = !this.isSidebarHidden;
+            }
+        },
         async fetchData() {
             const serverId = this.$route.params.serverId;
             try {
                 const channelsResponse = await apiService.get(`/api/${serverId}/channels`);
-
                 const channels = channelsResponse.channels || [];
-
-                this.textChannels = channels
-                    .filter(channel => channel.type === 0) // Filter text channels
-                    .map(channel => ({
-                        id: channel.id,
-                        name: channel.name,
-                    })
-                );
-
+                this.textChannels = channels.filter(channel => channel.type === 0).map(channel => ({
+                    id: channel.id,
+                    name: channel.name,
+                }));
                 const previewResponse = await apiService.get(`/api/${serverId}/getWelcomeLeave`);
                 const config = previewResponse.config || {};
-
                 this.preview = {
                     welcomeChannel: this.getChannelName(config.welcome_channel_id),
                     leaveChannel: this.getChannelName(config.leave_channel_id),
                 };
-
                 this.welcomeChannel = config.welcome_channel_id || null;
                 this.leaveChannel = config.leave_channel_id || null;
             } catch (error) {
@@ -89,17 +96,15 @@ export default {
                 this.loading = false;
             }
         },
-        // 保存歡迎與離開設置
         async saveWelcomeLeaveSettings() {
             const serverId = this.$route.params.serverId;
-
             try {
                 await apiService.post(`/api/${serverId}/updateWelcomeLeave`, {
                     welcomeChannelId: this.welcomeChannel,
                     leaveChannelId: this.leaveChannel,
                 });
                 alert("Settings saved successfully!");
-                await this.fetchData(); // 更新預覽設置
+                await this.fetchData();
             } catch (error) {
                 console.error("Error saving settings:", error);
             }
@@ -121,6 +126,20 @@ export default {
     color: #ffffff;
 }
 
+.sidebar-toggle {
+    background: #2e3136;
+    color: #ffffff;
+    border: none;
+    padding: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    position: fixed;
+    top: 15px;
+    right: 70px;
+    z-index: 20;
+    border-radius: 5px;
+}
+
 .config-container {
     display: flex;
     flex: 1;
@@ -130,6 +149,13 @@ export default {
     width: 250px;
     background-color: #2e3136;
     padding: 20px;
+    transition: transform 0.3s ease;
+}
+
+.sidebar.hidden {
+    transform: translateX(-100%);
+    visibility: hidden;
+    position: absolute;
 }
 
 .main-content {
@@ -178,5 +204,16 @@ export default {
 h2 {
     margin-bottom: 20px;
     color: #ffffff;
+}
+
+@media (min-width: 769px) {
+    .sidebar-toggle {
+        display: none;
+    }
+    .sidebar {
+        transform: none !important;
+        visibility: visible !important;
+        position: relative !important;
+    }
 }
 </style>
