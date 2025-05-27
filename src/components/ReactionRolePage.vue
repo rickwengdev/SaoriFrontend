@@ -170,194 +170,148 @@ export default {
 </script>
 
 <style scoped>
-.container,
 .reaction-role-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  background: linear-gradient(135deg, #7289da, #4b2c5e);
-  color: #ffffff;
-}
-
-/* Sidebar Toggle 按鈕 */
-.sidebar-toggle {
-  background: #2e3136;
-  color: #ffffff;
-  border: none;
-  padding: 10px;
-  font-size: 18px;
-  cursor: pointer;
-  position: fixed;
-  top: 15px;
-  right: 70px;
-  z-index: 20;
-  border-radius: 5px;
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #3f3cbb, #4a00e0);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .config-container {
   display: flex;
   flex: 1;
-  flex-direction: row;
+  min-height: 100%;
 }
 
+/* Sidebar */
 .sidebar {
   width: 250px;
   background-color: #2e3136;
   padding: 20px;
   transition: transform 0.3s ease;
+  transform: translateX(0);
 }
 
 .sidebar.hidden {
   transform: translateX(-100%);
-  visibility: hidden;
-  position: absolute;
 }
 
-.main-content {
-  flex: 1;
-  padding: 20px;
-}
-
-.form {
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-select,
-.form-input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  background-color: rgba(255, 255, 255, 0.9);
-  color: #000000;
-  font-size: 16px;
-}
-
-.form-select:focus,
-.form-input:focus {
-  border-color: #7289da;
-  outline: none;
-}
-
-.save-button {
-  background-color: #7289da;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 10px 20px;
-  cursor: pointer;
-  width: 100%;
-  transition: background-color 0.3s ease-in-out;
-}
-
-.save-button:hover {
-  background-color: #5a6bb7;
-}
-
-.preview {
-  margin-top: 20px;
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 20px;
-  border-radius: 8px;
-}
-
-.reaction-roles-list {
+/* Sidebar navigation items */
+.sidebar nav ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.reaction-role-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+.sidebar nav ul li {
+  margin: 20px 0;
+}
+
+.sidebar nav ul li a {
+  text-decoration: none;
+  color: white;
+  display: block;
   padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 5px;
+  border-radius: 25px;
+  transition: background-color 0.3s;
 }
 
-.reaction-role-item > span {
+.sidebar nav ul li a.active,
+.sidebar nav ul li a:hover {
+  background-color: #7289da;
+}
+
+/* Main content */
+.main-content {
   flex: 1;
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
+  padding: 40px;
+  background: linear-gradient(to bottom right, #4b0082, #8a2be2);
+  color: white;
+  transition: margin-left 0.3s ease;
 }
 
-.reaction-role-item > button.delete-button {
-  background-color: #ff4757;
-  color: #ffffff;
+/* Toggle button */
+.sidebar-toggle {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: #2e3136;
   border: none;
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-size: 14px;
+  padding: 10px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  display: flex;
-  align-items: center;
+  color: white;
+  display: none; /* 顯示在小螢幕 */
 }
 
-.reaction-role-item > button.delete-button:hover {
-  background-color: #e03e4f;
+/* Profile avatar */
+.profile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
 }
 
-.emoji-image {
-  height: 1.2em;
-  vertical-align: middle;
+/* Settings section */
+.settings-section {
+  margin-bottom: 30px;
 }
 
-h2 {
-  margin-bottom: 20px;
-  color: #ffffff;
+.settings-section label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
 }
 
-/* RWD: 移動裝置 */
+.settings-section select,
+.settings-section input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: none;
+  margin-bottom: 15px;
+}
+
+.settings-section button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #7289da;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.settings-section button:hover {
+  background-color: #5b6eae;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-  .config-container {
-    flex-direction: column;
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 100;
+    transform: translateX(-100%);
+  }
+
+  .sidebar:not(.hidden) {
+    transform: translateX(0);
+  }
+
+  .sidebar-toggle {
+    display: block;
+    z-index: 200;
   }
 
   .main-content {
-    padding: 10px;
+    padding: 20px;
   }
 
-  .reaction-role-item {
+  .config-container {
     flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .reaction-role-item > span {
-    white-space: normal;
-    overflow: visible;
-    text-overflow: unset;
-  }
-
-  .reaction-role-item > button.delete-button {
-    align-self: flex-end;
-    margin-top: 8px;
-  }
-}
-
-/* 桌面版隱藏切換按鈕 */
-@media (min-width: 769px) {
-  .sidebar-toggle {
-    display: none;
-  }
-
-  .sidebar {
-    transform: none !important;
-    visibility: visible !important;
-    position: relative !important;
   }
 }
 </style>
