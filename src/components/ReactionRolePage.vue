@@ -173,145 +173,185 @@ export default {
 .reaction-role-page {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  background: linear-gradient(to bottom right, #3f3cbb, #4a00e0);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  height: 100vh;
+  background: linear-gradient(135deg, #7289da, #4b2c5e);
+  color: #ffffff;
 }
 
 .config-container {
   display: flex;
   flex: 1;
-  min-height: 100%;
+  flex-direction: row;
 }
 
-/* Sidebar */
 .sidebar {
   width: 250px;
   background-color: #2e3136;
   padding: 20px;
-  transition: transform 0.3s ease;
-  transform: translateX(0);
 }
 
-.sidebar.hidden {
-  transform: translateX(-100%);
+.main-content {
+  flex: 1;
+  padding: 20px;
 }
 
-/* Sidebar navigation items */
-.sidebar nav ul {
+.form {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-select,
+.form-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #000000;
+  font-size: 16px;
+}
+
+.form-select:focus,
+.form-input:focus {
+  border-color: #7289da;
+  outline: none;
+}
+
+.save-button {
+  background-color: #7289da;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.save-button:hover {
+  background-color: #5a6bb7;
+}
+
+.preview {
+  margin-top: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.reaction-roles-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.sidebar nav ul li {
-  margin: 20px 0;
-}
-
-.sidebar nav ul li a {
-  text-decoration: none;
-  color: white;
-  display: block;
+.reaction-role-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
   padding: 10px;
-  border-radius: 25px;
-  transition: background-color 0.3s;
+  border-radius: 6px;
+  margin-bottom: 5px;
 }
 
-.sidebar nav ul li a.active,
-.sidebar nav ul li a:hover {
-  background-color: #7289da;
-}
-
-/* Main content */
-.main-content {
+.reaction-role-item > span {
   flex: 1;
-  padding: 40px;
-  background: linear-gradient(to bottom right, #4b0082, #8a2be2);
-  color: white;
-  transition: margin-left 0.3s ease;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
-/* Toggle button */
-.sidebar-toggle {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  background-color: #2e3136;
+.reaction-role-item > button.delete-button {
+  background-color: #ff4757;
+  color: #ffffff;
   border: none;
-  padding: 10px;
-  border-radius: 5px;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 14px;
   cursor: pointer;
-  color: white;
-  display: none; /* 顯示在小螢幕 */
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
 }
 
-/* Profile avatar */
-.profile-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+.reaction-role-item > button.delete-button:hover {
+  background-color: #e03e4f;
 }
 
-/* Settings section */
-.settings-section {
-  margin-bottom: 30px;
+.emoji-image {
+  height: 1.2em;
+  vertical-align: middle;
 }
 
-.settings-section label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: bold;
+/* RWD 原始設定 */
+@media (max-width: 768px) {
+  .config-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .main-content {
+    padding: 10px;
+  }
+
+  .reaction-role-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .reaction-role-item > span {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
+
+  .reaction-role-item > button.delete-button {
+    align-self: flex-end;
+    margin-top: 8px;
+  }
 }
 
-.settings-section select,
-.settings-section input {
-  width: 100%;
-  padding: 8px;
-  border-radius: 4px;
-  border: none;
-  margin-bottom: 15px;
-}
-
-.settings-section button {
-  padding: 10px 20px;
-  border: none;
-  background-color: #7289da;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.settings-section button:hover {
-  background-color: #5b6eae;
-}
-
-/* Responsive Design */
+/* ✅ Sidebar 手機版從左側滑出修正 */
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
     top: 0;
     left: 0;
-    height: 100%;
-    z-index: 100;
+    height: 100vh;
+    width: 250px;
     transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 999;
   }
 
-  .sidebar:not(.hidden) {
+  .sidebar.show {
     transform: translateX(0);
   }
 
   .sidebar-toggle {
-    display: block;
-    z-index: 200;
-  }
-
-  .main-content {
-    padding: 20px;
-  }
-
-  .config-container {
-    flex-direction: column;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    background-color: #2e3136;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
   }
 }
 </style>
