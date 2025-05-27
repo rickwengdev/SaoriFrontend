@@ -1,8 +1,9 @@
 <template>
     <div class="container">
         <NavigationBar />
+        <button @click="toggleSidebar" class="sidebar-toggle" v-if="isMobile">☰</button>
         <div class="config-container">
-            <Sidebar @option-selected="" />
+            <Sidebar @option-selected="" :class="{ 'hidden': isMobile && isSidebarHidden }" />
             <main class="main-content">
                 <section v-if="currentSection === 'tracking'" class="config-section">
                     <h2>Member Tracking Settings</h2>
@@ -42,12 +43,26 @@ export default {
                 trackingChannel: null,
             },
             loading: true,
+            isSidebarHidden: false,
+            isMobile: window.innerWidth <= 768,
         };
     },
     async created() {
+        window.addEventListener('resize', this.checkMobile);
         await this.fetchData();
     },
+    async beforeUnmount() {
+        window.removeEventListener('resize', this.checkMobile);
+    },
     methods: {
+        checkMobile() {
+            this.isMobile = window.innerWidth <= 768;
+        },
+        toggleSidebar() {
+            if (this.isMobile) {
+                this.isSidebarHidden = !this.isSidebarHidden;
+            }
+        },
         async fetchData() {
             const serverId = this.$route.params.serverId;
             try {
@@ -108,6 +123,20 @@ export default {
     color: #ffffff;
 }
 
+.sidebar-toggle {
+    background: #2e3136;
+    color: #ffffff;
+    border: none;
+    padding: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    position: fixed;
+    top: 15px;
+    right: 70px;
+    z-index: 20;
+    border-radius: 5px;
+}
+
 .config-container {
     display: flex;
     flex: 1;
@@ -117,6 +146,13 @@ export default {
     width: 250px;
     background-color: #2e3136;
     padding: 20px;
+    transition: transform 0.3s ease;
+}
+
+.sidebar.hidden {
+    transform: translateX(-100%);
+    visibility: hidden;
+    position: absolute;
 }
 
 .main-content {
@@ -165,5 +201,16 @@ export default {
 h2 {
     margin-bottom: 20px;
     color: #ffffff;
+}
+
+@media (min-width: 769px) {
+    .sidebar-toggle {
+        display: none;
+    }
+    .sidebar {
+        transform: none !important;
+        visibility: visible !important;
+        position: relative !important;
+    }
 }
 </style>
