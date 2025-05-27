@@ -327,11 +327,6 @@ h2 {
     flex-direction: column;
   }
 
-  .sidebar {
-    width: 100%;
-    padding: 10px;
-  }
-
   .main-content {
     padding: 10px;
   }
