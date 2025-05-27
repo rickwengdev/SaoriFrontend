@@ -11,7 +11,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 8080, // 更改開發伺服器端口
+    port: 443, // 更改開發伺服器端口
     https: {
       key: fs.readFileSync(path.resolve(__dirname, 'server.key')),
       cert: fs.readFileSync(path.resolve(__dirname, 'server.crt')),
