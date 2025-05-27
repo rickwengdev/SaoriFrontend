@@ -313,10 +313,7 @@ export default {
 }
 
 /* RWD 原始設定 */
-@media (max-width: 769px) {
-  .config-container {
-    flex-direction: column;
-  }
+@media (min-width: 769px) {
 
   .sidebar {
       transform: none !important;
@@ -326,10 +323,6 @@ export default {
 
   .sidebar-toggle{
     display: none;
-  }
-  
-  .main-content {
-    padding: 10px;
   }
 
   .reaction-role-item {
