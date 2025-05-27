@@ -178,16 +178,36 @@ export default {
   color: #ffffff;
 }
 
+.sidebar-toggle {
+    background: #2e3136;
+    color: #ffffff;
+    border: none;
+    padding: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    position: fixed;
+    top: 15px;
+    right: 70px;
+    z-index: 20;
+    border-radius: 5px;
+}
+
 .config-container {
   display: flex;
   flex: 1;
-  flex-direction: row;
 }
 
 .sidebar {
-  width: 250px;
-  background-color: #2e3136;
-  padding: 20px;
+    width: 250px;
+    background-color: #2e3136;
+    padding: 20px;
+    transition: transform 0.3s ease;
+}
+
+.sidebar.hidden {
+    transform: translateX(-100%);
+    visibility: hidden;
+    position: absolute;
 }
 
 .main-content {
@@ -293,16 +313,21 @@ export default {
 }
 
 /* RWD 原始設定 */
-@media (max-width: 768px) {
+@media (max-width: 769px) {
   .config-container {
     flex-direction: column;
   }
 
   .sidebar {
-    width: 100%;
-    padding: 10px;
+      transform: none !important;
+      visibility: visible !important;
+      position: relative !important;
   }
 
+  .sidebar-toggle{
+    display: none;
+  }
+  
   .main-content {
     padding: 10px;
   }
@@ -321,37 +346,6 @@ export default {
   .reaction-role-item > button.delete-button {
     align-self: flex-end;
     margin-top: 8px;
-  }
-}
-
-/* ✅ Sidebar 手機版從左側滑出修正 */
-@media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 250px;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    z-index: 999;
-  }
-
-  .sidebar.show {
-    transform: translateX(0);
-  }
-
-  .sidebar-toggle {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    z-index: 1000;
-    background-color: #2e3136;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
   }
 }
 </style>
