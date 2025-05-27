@@ -3,7 +3,7 @@
     <NavigationBar />
     <button @click="toggleSidebar" class="sidebar-toggle" v-if="isMobile">☰</button>
     <div class="config-container">
-      <Sidebar @option-selected="handleOptionSelect" :class="{ hidden: isMobile && isSidebarHidden }" />
+      <Sidebar @option-selected="" :class="{ hidden: isMobile && isSidebarHidden }" />
       <main class="main-content">
         <section class="config-section">
           <h2>Reaction Role Settings</h2>
@@ -154,31 +154,44 @@ export default {
         console.error("Failed to delete Reaction Role:", error);
       }
     },
+    checkMobile() {
+      this.isMobile = window.innerWidth <= 768;
+    },
     toggleSidebar() {
       if (this.isMobile) {
         this.isSidebarHidden = !this.isSidebarHidden;
       }
     },
-    checkMobile() {
-      this.isMobile = window.innerWidth <= 768;
-    },
     isUrl(emoji) {
       return emoji.startsWith("http");
-    },
-    handleOptionSelect(option) {
-      console.log("Option selected:", option);
-    },
+    }
   },
   };
 </script>
 
 <style scoped>
+.container,
 .reaction-role-page {
   display: flex;
   flex-direction: column;
   height: 100vh;
   background: linear-gradient(135deg, #7289da, #4b2c5e);
   color: #ffffff;
+}
+
+/* Sidebar Toggle 按鈕 */
+.sidebar-toggle {
+  background: #2e3136;
+  color: #ffffff;
+  border: none;
+  padding: 10px;
+  font-size: 18px;
+  cursor: pointer;
+  position: fixed;
+  top: 15px;
+  right: 70px;
+  z-index: 20;
+  border-radius: 5px;
 }
 
 .config-container {
@@ -191,6 +204,13 @@ export default {
   width: 250px;
   background-color: #2e3136;
   padding: 20px;
+  transition: transform 0.3s ease;
+}
+
+.sidebar.hidden {
+  transform: translateX(-100%);
+  visibility: hidden;
+  position: absolute;
 }
 
 .main-content {
@@ -233,6 +253,7 @@ export default {
   border-radius: 5px;
   padding: 10px 20px;
   cursor: pointer;
+  width: 100%;
   transition: background-color 0.3s ease-in-out;
 }
 
@@ -257,7 +278,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 10px;
-  background-color: rgba(255, 255, 255, 0.1); /* 淡色背景 */
+  background-color: rgba(255, 255, 255, 0.1);
   color: #ffffff;
   padding: 10px;
   border-radius: 6px;
@@ -295,7 +316,12 @@ export default {
   vertical-align: middle;
 }
 
-/* RWD */
+h2 {
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+/* RWD: 移動裝置 */
 @media (max-width: 768px) {
   .config-container {
     flex-direction: column;
@@ -324,6 +350,19 @@ export default {
   .reaction-role-item > button.delete-button {
     align-self: flex-end;
     margin-top: 8px;
+  }
+}
+
+/* 桌面版隱藏切換按鈕 */
+@media (min-width: 769px) {
+  .sidebar-toggle {
+    display: none;
+  }
+
+  .sidebar {
+    transform: none !important;
+    visibility: visible !important;
+    position: relative !important;
   }
 }
 </style>
