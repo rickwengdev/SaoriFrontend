@@ -43,7 +43,7 @@ export default {
                 logChannel: null,
             },
             loading: true,
-            isSidebarHidden: true,
+            isSidebarHidden: false,
             isMobile: window.innerWidth <= 768,
         };
     },
