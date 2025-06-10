@@ -153,6 +153,8 @@ export default {
       } catch (error) {
         console.error("❌ Error fetching server data:", error);
         alert("Failed to load server configuration. Please check the bot permission or API.");
+      } finally {
+        this.loading = false; // 無論成功或失敗都結束 loading 狀態
       }
     },
     async fetchPreviewConfig() {
