@@ -106,44 +106,53 @@ export default {
   methods: {
     async fetchServerData() {
       const serverId = this.$route.params.serverId;
+
       try {
-        const [channelsResponse, rolesResponse, emojisResponse] = await Promise.all([
+        // 同步取得三個端點資料
+        const [channelsRes, rolesRes, emojisRes] = await Promise.all([
           apiService.get(`/api/${serverId}/channels`),
           apiService.get(`/api/${serverId}/roles`),
           apiService.get(`/api/${serverId}/emojis`),
         ]);
 
-        if (!channelsResponse.success || !Array.isArray(channelsResponse.channels)) {
-          throw new Error("Invalid channel response: " + JSON.stringify(channelsResponse));
+        // 1️⃣ 驗證並處理頻道資料
+        if (!channelsRes.success || !Array.isArray(channelsRes.channels)) {
+          throw new Error("Invalid channel response");
         }
 
-        this.textChannels = channelsResponse.channels
-          .filter((channel) => channel.type === 0)
-          .map((channel) => ({ id: channel.id, name: channel.name }));
+        this.textChannels = channelsRes.channels
+          .filter((ch) => ch.type === 0) // type === 0 表示文字頻道
+          .map((ch) => ({
+            id: ch.id,
+            name: ch.name,
+          }));
 
-        if (!rolesResponse.success || !Array.isArray(rolesResponse.data)) {
-          throw new Error("Invalid roles response: " + JSON.stringify(rolesResponse));
+        // 2️⃣ 驗證並處理角色資料
+        if (!rolesRes.success || !Array.isArray(rolesRes.data)) {
+          throw new Error("Invalid role response");
         }
 
-        this.roles = rolesResponse.data.map((role) => ({
+        this.roles = rolesRes.data.map((role) => ({
           id: role.id,
           name: role.name || "Unnamed Role",
         }));
 
-        if (!emojisResponse.success || !Array.isArray(emojisResponse.data)) {
-          throw new Error("Invalid emojis response: " + JSON.stringify(emojisResponse));
+        // 3️⃣ 驗證並處理表情符號資料
+        if (!emojisRes.success || !Array.isArray(emojisRes.data)) {
+          throw new Error("Invalid emoji response");
         }
 
-        this.emojis = emojisResponse.data.map((emoji) => ({
+        this.emojis = emojisRes.data.map((emoji) => ({
           id: emoji.id,
           name: emoji.name,
-          url: emoji.url,
+          url: emoji.url, // 如果你 API 有給 emoji 圖片連結
         }));
 
-        this.fetchPreviewConfig(); // 載入設定預覽
+        // 4️⃣ 更新設定預覽（先等 textChannels, roles, emojis 都載好）
+        this.fetchPreviewConfig();
       } catch (error) {
         console.error("❌ Error fetching server data:", error);
-        this.error = error.message || "Failed to load server data";
+        alert("Failed to load server configuration. Please check the bot permission or API.");
       }
     },
     async fetchPreviewConfig() {
