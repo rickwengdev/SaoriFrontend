@@ -113,26 +113,41 @@ export default {
           apiService.get(`/api/${serverId}/emojis`),
         ]);
 
-        this.textChannels = channelsResponse.channels
+        // ✅ 安全解析 channels
+        if (!channelsResponse.data?.success || !Array.isArray(channelsResponse.data.channels)) {
+          throw new Error("Invalid channel response: " + JSON.stringify(channelsResponse.data));
+        }
+        this.textChannels = channelsResponse.data.channels
           .filter((channel) => channel.type === 0)
-          .map((channel) => ({ id: channel.id, name: channel.name }));
+          .map((channel) => ({
+            id: channel.id,
+            name: channel.name,
+          }));
 
+        // ✅ 安全解析 roles
+        if (!rolesResponse.data?.success || !Array.isArray(rolesResponse.data.data)) {
+          throw new Error("Invalid roles response: " + JSON.stringify(rolesResponse.data));
+        }
         this.roles = rolesResponse.data.data.map((role) => ({
           id: role.id,
           name: role.name || "Unnamed Role",
         }));
 
+        // ✅ 安全解析 emojis
+        if (!emojisResponse.data?.success || !Array.isArray(emojisResponse.data.data)) {
+          throw new Error("Invalid emojis response: " + JSON.stringify(emojisResponse.data));
+        }
         this.emojis = emojisResponse.data.data.map((emoji) => ({
           id: emoji.id,
           name: emoji.name,
-          url: emoji.url,
+          url: emoji.url, // 伺服器應包含 url 欄位（如自訂 emoji 圖）
         }));
 
         this.loading = false;
-        this.fetchPreviewConfig(); // 等資料都準備好後才呼叫
+        this.fetchPreviewConfig(); // 所有資料成功後再呼叫
       } catch (err) {
-        console.error("Error fetching server data:", err);
-        this.error = "Failed to load server data. Please check permissions or server status.";
+        console.error("❌ Error fetching server data:", err);
+        this.error = err.message || "Failed to load server data";
         this.loading = false;
       }
     },
