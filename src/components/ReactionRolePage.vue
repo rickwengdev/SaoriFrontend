@@ -7,7 +7,10 @@
       <main class="main-content">
         <section class="config-section">
           <h2>Reaction Role Settings</h2>
-          <form @submit.prevent="saveReactionRoleSettings" class="form">
+
+          <div v-if="loading">Loading server data...</div>
+          <div v-else-if="error">{{ error }}</div>
+          <form v-else @submit.prevent="saveReactionRoleSettings" class="form">
             <div class="form-group">
               <label for="channel-select">Channel:</label>
               <select id="channel-select" v-model="reactionRole.channelId" class="form-select">
@@ -17,19 +20,25 @@
                 </option>
               </select>
             </div>
+
             <div class="form-group">
               <label for="message-id">Message ID:</label>
               <input type="text" id="message-id" v-model="reactionRole.messageId" class="form-input" />
             </div>
+
             <div class="form-group">
               <label for="emoji-select">Emoji:</label>
               <select id="emoji-select" v-model="reactionRole.emoji" class="form-select">
                 <option v-if="emojis.length === 0" disabled>No emojis available</option>
-                <option v-for="emoji in emojis" :key="emoji.id" :value="emoji.id">
+                <option v-for="emoji in emojis" :key="emoji.id || emoji.name" :value="emoji.id || emoji.name">
+                  <span v-if="emoji.url">
+                    <img :src="emoji.url" class="emoji-image" />
+                  </span>
                   {{ emoji.name }}
                 </option>
               </select>
             </div>
+
             <div class="form-group">
               <label for="role-select">Role:</label>
               <select id="role-select" v-model="reactionRole.roleId" class="form-select">
@@ -39,6 +48,7 @@
                 </option>
               </select>
             </div>
+
             <button type="submit" class="save-button">Save</button>
           </form>
 
@@ -82,12 +92,13 @@ export default {
       previewConfig: { reactionRoles: [] },
       isSidebarHidden: false,
       isMobile: window.innerWidth <= 768,
+      loading: true,
+      error: null,
     };
   },
   created() {
     window.addEventListener("resize", this.checkMobile);
     this.fetchServerData();
-    this.fetchPreviewConfig();
   },
   beforeUnmount() {
     window.removeEventListener("resize", this.checkMobile);
@@ -106,26 +117,42 @@ export default {
           .filter((channel) => channel.type === 0)
           .map((channel) => ({ id: channel.id, name: channel.name }));
 
-        this.roles = rolesResponse.data.map((role) => ({
+        this.roles = rolesResponse.data.data.map((role) => ({
           id: role.id,
           name: role.name || "Unnamed Role",
         }));
 
-        this.emojis = emojisResponse.data;
-      } catch (error) {
-        console.error("Error fetching server data:", error);
+        this.emojis = emojisResponse.data.data.map((emoji) => ({
+          id: emoji.id,
+          name: emoji.name,
+          url: emoji.url,
+        }));
+
+        this.loading = false;
+        this.fetchPreviewConfig(); // 等資料都準備好後才呼叫
+      } catch (err) {
+        console.error("Error fetching server data:", err);
+        this.error = "Failed to load server data. Please check permissions or server status.";
+        this.loading = false;
       }
     },
     async fetchPreviewConfig() {
       const serverId = this.$route.params.serverId;
       try {
         const response = await apiService.get(`/api/${serverId}/reaction-roles`);
-        this.previewConfig.reactionRoles = response.data.map((item) => ({
-          channel: this.textChannels.find((ch) => ch.id === item.channel_id)?.name || "Unknown Channel",
-          messageId: item.message_id,
-          emoji: this.emojis.find((e) => e.id === item.emoji)?.name || item.emoji,
-          role: this.roles.find((r) => r.id === item.role_id)?.name || "Unknown Role",
-        }));
+        this.previewConfig.reactionRoles = response.data.data.map((item) => {
+          const channel = this.textChannels.find((ch) => ch.id === item.channel_id)?.name || "Unknown Channel";
+          const emoji = this.emojis.find((e) => e.id === item.emoji || e.name === item.emoji);
+          const emojiDisplay = emoji?.url || emoji?.name || item.emoji;
+          const role = this.roles.find((r) => r.id === item.role_id)?.name || "Unknown Role";
+
+          return {
+            channel,
+            messageId: item.message_id,
+            emoji: emojiDisplay,
+            role,
+          };
+        });
       } catch (error) {
         console.error("Failed to fetch preview configuration:", error);
       }
@@ -133,25 +160,27 @@ export default {
     async saveReactionRoleSettings() {
       const serverId = this.$route.params.serverId;
       try {
+        console.log("Saving:", this.reactionRole);
         await apiService.post(`/api/${serverId}/reaction-roles`, this.reactionRole);
         alert("Reaction Role saved successfully!");
         this.fetchPreviewConfig();
       } catch (error) {
         console.error("Failed to save Reaction Role:", error);
+        alert("Failed to save. See console for details.");
       }
     },
     async deleteReactionRole(role) {
       const serverId = this.$route.params.serverId;
-      const emojiId = this.emojis.find((e) => e.name === role.emoji)?.id;
       try {
         await apiService.delete(`/api/${serverId}/reaction-roles`, {
           messageId: role.messageId,
-          emoji: emojiId,
+          emoji: role.emoji, // 可傳 name 或 id
         });
         alert("Reaction Role deleted successfully!");
         this.fetchPreviewConfig();
       } catch (error) {
         console.error("Failed to delete Reaction Role:", error);
+        alert("Failed to delete. See console for details.");
       }
     },
     checkMobile() {
@@ -162,11 +191,11 @@ export default {
         this.isSidebarHidden = !this.isSidebarHidden;
       }
     },
-    isUrl(emoji) {
-      return emoji.startsWith("http");
-    }
+    isUrl(str) {
+      return typeof str === "string" && str.startsWith("http");
+    },
   },
-  };
+};
 </script>
 
 <style scoped>
@@ -340,5 +369,11 @@ export default {
     align-self: flex-end;
     margin-top: 8px;
   }
+}
+
+.emoji-image {
+  height: 1.2em;
+  vertical-align: middle;
+  margin-right: 4px;
 }
 </style>
