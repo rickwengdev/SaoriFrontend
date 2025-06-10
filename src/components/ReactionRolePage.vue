@@ -157,23 +157,24 @@ export default {
     },
     async fetchPreviewConfig() {
       const serverId = this.$route.params.serverId;
+
       try {
         const response = await apiService.get(`/api/${serverId}/reaction-roles`);
-        this.previewConfig.reactionRoles = response.data.data.map((item) => {
-          const channel = this.textChannels.find((ch) => ch.id === item.channel_id)?.name || "Unknown Channel";
-          const emoji = this.emojis.find((e) => e.id === item.emoji || e.name === item.emoji);
-          const emojiDisplay = emoji?.url || emoji?.name || item.emoji;
-          const role = this.roles.find((r) => r.id === item.role_id)?.name || "Unknown Role";
 
-          return {
-            channel,
-            messageId: item.message_id,
-            emoji: emojiDisplay,
-            role,
-          };
-        });
+        // 驗證 response 結構
+        if (!response.success || !Array.isArray(response.data)) {
+          throw new Error("Invalid reaction role response format");
+        }
+
+        this.previewConfig.reactionRoles = response.data.map((item) => ({
+          channel: this.textChannels.find((ch) => ch.id === item.channel_id)?.name || "Unknown Channel",
+          messageId: item.message_id,
+          emoji: this.emojis.find((e) => e.id === item.emoji)?.name || item.emoji,
+          role: this.roles.find((r) => r.id === item.role_id)?.name || "Unknown Role",
+        }));
       } catch (error) {
-        console.error("Failed to fetch preview configuration:", error);
+        console.error("❌ Failed to fetch preview configuration:", error);
+        alert("Failed to load preview configuration. Please try again later.");
       }
     },
     async saveReactionRoleSettings() {
